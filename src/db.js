@@ -70,13 +70,34 @@ const eventSchema = new mongoose.Schema({
   image: { type: String },
 });
 
-const bookingSchema = new mongoose.Schema({
-  user_id: { type: Types.ObjectId, ref: "User", required: true },
-  package_id: { type: Types.ObjectId, ref: "Package", required: true },
-  booking_date: { type: Date, required: true, default: Date.now },
-  status: {type:Boolean , default:false},
-  payment_id: { type: Types.ObjectId, ref: "Payment", default: null },
-});
+const bookingSchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    villageId: { type: mongoose.Schema.Types.ObjectId, ref: "Village", required: true },
+    checkIn: Date,
+    checkOut: Date,
+    guests: Number,
+    nightlyPrice: Number,
+    nights: Number,
+    taxes: Number,
+    status: { type: String, enum: ["PENDING", "PAID", "CANCELLED"], default: "PENDING" },
+  },
+  { timestamps: true }
+);
+
+const paymentSchema= new mongoose.Schema({
+  bookingId: { type: mongoose.Schema.Types.ObjectId, ref: "Booking" },
+    provider: { type: String, enum: ["razorpay"], default: "razorpay" },
+    amountPaise: Number,
+    currency: { type: String, default: "INR" },
+    status: { type: String, enum: ["CREATED", "PAID", "FAILED"], default: "CREATED" },
+    orderId: String,                
+    paymentIdFromGateway: String,    
+    receipt: String,              
+    notes: Object,
+  },
+  { timestamps: true
+})
 
 const tripSchema = new mongoose.Schema(
   {
@@ -98,5 +119,7 @@ const tripSchema = new mongoose.Schema(
 
 const User = mongoose.model("User", userSchema);
 const Trip=mongoose.model("Trip", tripSchema);
+const Booking=mongoose.model("Booking",bookingSchema)
+const Payment=mongoose.model("Payment",paymentSchema)
 
-export {User, Trip};
+export {User, Trip ,Booking , Payment};
