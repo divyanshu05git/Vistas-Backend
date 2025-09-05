@@ -4,7 +4,7 @@ import axios from "axios";
 
 const router = express.Router();
 
-// ---- Config ----
+
 const OPENWEATHER_KEY = process.env.OPENWEATHER_KEY; // set in .env
 const INTERNAL_API_BASE = process.env.INTERNAL_API_BASE || "http://localhost:3000/api"; // where your geocode proxy lives
 const WEATHER_TIMEOUT_MS = 10_000;

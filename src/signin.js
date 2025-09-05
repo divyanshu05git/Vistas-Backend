@@ -22,7 +22,7 @@ router.post("/signin", async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
 
-    res.json({ token });
+    res.json({ token:token});
   } catch (err) {
     console.error("Signin error:", err);
     res.status(500).json({ message: "Error while signing in" });

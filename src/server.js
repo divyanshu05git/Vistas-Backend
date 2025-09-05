@@ -5,16 +5,18 @@ import mongoose from "mongoose";
 import cors from "cors";
 import crypto from "crypto";
 import Razorpay from "razorpay";
+import { success } from "zod";
 import http from "http";
 import { Server } from "socket.io";
 
-dotenv.config();
 
 //razor pay API
-const razor = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// export const instance= new Razorpay({
+//   key_id: process.env.RAZORPAY_KEY,
+//   key_secret: process.env.RAZORPAY_API_SECRET,
+// });
+
+// app.route("/payment/process").post(processPayment);
 
 
 
@@ -25,9 +27,9 @@ import tripRoute from "./tripRoute.js";
 import tripSocket from "../socket/tripSocket.js";
 import geocodeRouter from "../socket/geoCodeRoute.js";
 import weatherAlertRouter from "./weatherAlertRoute.js";
+import bookRouter from "./booking.js"
 
 
-dotenv.config();
 
 // .env
 const {
@@ -36,13 +38,7 @@ const {
   DB_NAME = "Vistas",
 } = process.env;
 
-const MONGO_CONN_STR =
-  "mongodb+srv://prodjplchatgpt_db_user:vrdwlWtZRcAF3HmG@vistas.tufxssb.mongodb.net/?retryWrites=true&w=majority&appName=Vistas";
 
-// if (!MONGO_URI) {
-//   console.error("Missing MONGO_URI in .env");
-//   process.exit(1);
-// }
 
 const app = express();
 
@@ -61,6 +57,7 @@ app.use("/api/v1", signinRoute);
 app.use("/api/v1", tripRoute);
 app.use("/api", geocodeRouter);
 app.use("/api", weatherAlertRouter);
+app.use("/api", bookRouter)
 
 
 
@@ -81,8 +78,8 @@ const PORT =  3000;
 
 async function main() {
   try {
-    mongoose.set("strictQuery", true);
-    await mongoose.connect(MONGO_CONN_STR, { dbName: DB_NAME });
+    // mongoose.set("strictQuery", true);
+    await mongoose.connect(process.env.MONGO_URI);
     console.log(" MongoDB Connected");
 
     server.listen(PORT, () => {

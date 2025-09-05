@@ -1,5 +1,6 @@
 import express from "express";
 import { Trip } from "./db.js";
+import { userMiddleware } from "./middleware.js";
 
 const router = express.Router();
 

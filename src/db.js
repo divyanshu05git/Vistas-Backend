@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
 });
 
+
 const villageSchema = new mongoose.Schema({
   stateId: { type: Types.ObjectId, ref: "State" },
   name: { type: String, required: true },
@@ -27,10 +28,10 @@ const villageSchema = new mongoose.Schema({
   location: {
     long: { type: Number, required: true },
     lat: { type: Number, required: true },
-  },
+  }, 
 });
 
-const statesSchema = new mongoose.Schema({
+const stateSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
   image: { type: String },
@@ -70,20 +71,12 @@ const eventSchema = new mongoose.Schema({
   image: { type: String },
 });
 
-const bookingSchema = new mongoose.Schema(
-  {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    villageId: { type: mongoose.Schema.Types.ObjectId, ref: "Village", required: true },
-    checkIn: Date,
-    checkOut: Date,
-    guests: Number,
-    nightlyPrice: Number,
-    nights: Number,
-    taxes: Number,
-    status: { type: String, enum: ["PENDING", "PAID", "CANCELLED"], default: "PENDING" },
-  },
-  { timestamps: true }
-);
+const bookingSchema = new mongoose.Schema({
+  userId: { type: String, required: true, index: true },
+  villageId: { type: mongoose.Schema.Types.ObjectId, ref: "Village", required: true },
+  status: { type: String, enum: ["pending", "confirmed", "cancelled"], default: "pending" },
+  createdAt: { type: Date, default: Date.now }
+});
 
 const paymentSchema= new mongoose.Schema({
   bookingId: { type: mongoose.Schema.Types.ObjectId, ref: "Booking" },
@@ -121,5 +114,8 @@ const User = mongoose.model("User", userSchema);
 const Trip=mongoose.model("Trip", tripSchema);
 const Booking=mongoose.model("Booking",bookingSchema)
 const Payment=mongoose.model("Payment",paymentSchema)
+const Village=mongoose.model("Village",villageSchema)
+const State=mongoose.model("State",stateSchema)
 
-export {User, Trip ,Booking , Payment};
+
+export {User, Trip ,Booking , Payment,Village};
