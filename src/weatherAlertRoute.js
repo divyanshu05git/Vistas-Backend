@@ -24,9 +24,7 @@ function logDebug(...args) {
   if (WEATHER_DEBUG) console.log("[weather-alert]", ...args);
 }
 
-// ---- Route ----
-// POST /api/weather-alert
-// Body: { placeName?: string, lat?: number, lng?: number, tripId?: string }
+
 router.post("/weather-alert", async (req, res) => {
   try {
     // 0) Key sanity

@@ -10,13 +10,6 @@ import http from "http";
 import { Server } from "socket.io";
 
 
-//razor pay API
-// export const instance= new Razorpay({
-//   key_id: process.env.RAZORPAY_KEY,
-//   key_secret: process.env.RAZORPAY_API_SECRET,
-// });
-
-// app.route("/payment/process").post(processPayment);
 
 
 
@@ -28,6 +21,8 @@ import tripSocket from "../socket/tripSocket.js";
 import geocodeRouter from "../socket/geoCodeRoute.js";
 import weatherAlertRouter from "./weatherAlertRoute.js";
 import bookRouter from "./booking.js"
+import paymentRouter from "./payment.js"
+import paymentVerificationRouter from "./paymentverify.js"
 
 
 
@@ -48,8 +43,6 @@ app.use(morgan("dev"));
 app.use(cors({ origin: CORS_ORIGIN === "*" ? "*" : CORS_ORIGIN, credentials: true }));
 if (NODE_ENV !== "production") app.use(morgan("dev"));
 
-// Health check
-app.get("/health", (_req, res) => res.json({ ok: true, ts: Date.now() }));
 
 // rest api
 app.use("/api/v1", signupRoute);
@@ -58,6 +51,8 @@ app.use("/api/v1", tripRoute);
 app.use("/api", geocodeRouter);
 app.use("/api", weatherAlertRouter);
 app.use("/api", bookRouter)
+app.use("/api",paymentRouter)
+app.use("/api/payment",paymentVerificationRouter)
 
 
 
@@ -70,12 +65,10 @@ const io = new Server(server, {
 
 // expose io to routes (weather-alert uses this)
 app.set("io", io);
-
-// initialize socket
 tripSocket(io);
 
-const PORT =  3000;
 
+const PORT =  3000;
 async function main() {
   try {
     // mongoose.set("strictQuery", true);

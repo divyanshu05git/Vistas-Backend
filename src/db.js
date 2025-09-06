@@ -31,6 +31,8 @@ const villageSchema = new mongoose.Schema({
   }, 
 });
 
+
+//currently not using
 const stateSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
@@ -79,18 +81,18 @@ const bookingSchema = new mongoose.Schema({
 });
 
 const paymentSchema= new mongoose.Schema({
-  bookingId: { type: mongoose.Schema.Types.ObjectId, ref: "Booking" },
+    bookingId: { type: mongoose.Schema.Types.ObjectId, ref: "Booking" },
     provider: { type: String, enum: ["razorpay"], default: "razorpay" },
-    amountPaise: Number,
+    amount: Number,
     currency: { type: String, default: "INR" },
-    status: { type: String, enum: ["CREATED", "PAID", "FAILED"], default: "CREATED" },
+    status: { type: String, enum: ["created", "paid", "failed"], default: "created" },
     orderId: String,                
-    paymentIdFromGateway: String,    
+    paymentId: String,    
     receipt: String,              
     notes: Object,
-  },
-  { timestamps: true
-})
+   },
+   { timestamps: true}
+)
 
 const tripSchema = new mongoose.Schema(
   {
@@ -118,4 +120,4 @@ const Village=mongoose.model("Village",villageSchema)
 const State=mongoose.model("State",stateSchema)
 
 
-export {User, Trip ,Booking , Payment,Village};
+export {User, Trip ,Booking , Payment, Village};
