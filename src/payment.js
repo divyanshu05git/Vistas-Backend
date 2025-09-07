@@ -1,68 +1,71 @@
 import { Router } from "express";
 import RazorpayPkg from "razorpay";
-import crypto from "crypto";
-import { Booking ,Payment} from "./db.js";
+import { Booking, Payment } from "./db.js";
 import { userMiddleware } from "./middleware.js";
-import {RAZORPAY_KEY_ID,RAZORPAY_KEY_SECRET} from "./config.js";
+import { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } from "./config.js";
 
-const Razorpay = RazorpayPkg; 
-const router=Router();
-
+const Razorpay = RazorpayPkg;
+const router = Router();
 
 const razorpay = new Razorpay({
   key_id: RAZORPAY_KEY_ID,
-  key_secret:RAZORPAY_KEY_SECRET,
+  key_secret: RAZORPAY_KEY_SECRET,
 });
 
+// POST /api/payment/create-order
 router.post("/create-order", userMiddleware, async (req, res) => {
   try {
-    const { bookingId } = req.body;
-    if (!bookingId) return res.status(400).json({ error: "bookingId required" });
+    const { bookingId, orderId } = req.body || {};
 
-    const booking = await Booking.findOne({ _id: bookingId, userId: req.userId });
+    let amountInPaise;
+    let receiptId;
+    let notes;
 
-    if (!booking) return res.status(404).json({ error: "Booking not found" });
-    if (booking.status !== "pending") return res.status(409).json({ error: "Booking not payable" });
+    if (bookingId) {
+      const booking = await Booking.findOne({ _id: bookingId, userId: req.userId });
+      if (!booking) return res.status(404).json({ error: "Booking not found" });
+      if (booking.status !== "pending") return res.status(409).json({ error: "Booking not payable" });
 
-    // decide price (example: flat 1500 INR)
-    const amount = 1500 * 100;
+      // TODO: compute real amount from booking; keep paise as integer
+      amountInPaise = 1500 * 100;
+      receiptId = String(bookingId);
+      notes = { bookingId: String(bookingId), userId: String(req.userId) };
+    } else if (orderId) {
+      // If you add an Order model later, validate it here
+      amountInPaise = 1500 * 100; // TODO: derive from order total
+      receiptId = String(orderId);
+      notes = { orderId: String(orderId), userId: String(req.userId) };
+    } else {
+      return res.status(400).json({ error: "bookingId or orderId required" });
+    }
 
-     console.log("Creating RZP order", {
-      bookingId,
-      userId: req.userId,
-      amount,
-      keyPresent: !!RAZORPAY_KEY_ID,
-      secretPresent: !!RAZORPAY_KEY_SECRET,
-
-    });
-
-    // make order in Razorpay
-    const order = await razorpay.orders.create({
-      amount: amount,
+    const rzOrder = await razorpay.orders.create({
+      amount: amountInPaise,
       currency: "INR",
-      receipt: String(bookingId),
-      notes: { bookingId: String(bookingId), userId: String(booking.userId) },
+      receipt: receiptId,
+      notes,
     });
 
-    // store payment record
-    const payment = await Payment.create({
-      bookingId,
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      status: "created",
+    await Payment.create({
+      bookingId: bookingId || undefined,   // link to one of them, not both
+      orderRefId: orderId || undefined,    // (avoid confusion with Razorpay order id)
+      orderId: rzOrder.id,                  // Razorpay order id
+      amount: rzOrder.amount,
+      currency: rzOrder.currency,
+      status: "CREATED",                    // match your enum casing or relax it
     });
 
-    res.json({
+    return res.json({
       key: RAZORPAY_KEY_ID,
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      bookingId: bookingId,
+      razorpayOrderId: rzOrder.id,
+      amount: rzOrder.amount,
+      currency: rzOrder.currency,
+      bookingId: bookingId || null,
+      orderId: orderId || null,
     });
   } catch (e) {
-        console.error(e);
-        res.status(500).json({ error: "Could not create order" });
+    console.error(e);
+    return res.status(500).json({ error: "Could not create order" });
   }
 });
 

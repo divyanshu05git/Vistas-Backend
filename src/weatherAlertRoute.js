@@ -41,9 +41,9 @@ router.post("/weather-alert", async (req, res) => {
     let lng = req.body?.lng;
     let display_name = null;
 
-    // 1) Get coords: either use provided lat/lng OR geocode placeName
+    
     if (typeof lat === "number" && typeof lng === "number") {
-      // coords provided by client; optional reverse name via your proxy (best-effort)
+      
       try {
         const rev = await axios.get(`${INTERNAL_API_BASE}/reverse`, {
           params: { lat, lng },

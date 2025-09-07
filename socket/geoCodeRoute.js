@@ -57,7 +57,7 @@ router.get("/reverse", async (req, res) => {
       timeout: 10000,
     });
 
-    res.json({
+    res.json({  
       lat: parseFloat(data?.lat),
       lng: parseFloat(data?.lon),
       display_name: data?.display_name,

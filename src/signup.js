@@ -8,10 +8,9 @@ const router = express.Router();
 
 router.post("/signup",async (req,res)=>{
     const requiredBody=z.object({
-        name: z.string(),
-        email:z.string().email(),
-        password: z.string().min(6)
-
+        email:z.string().email().transform(v => v.trim().toLowerCase()),
+        password: z.string().min(6),
+        name: z.string().trim().min(1).optional(),
     })
 
     const parsed=requiredBody.safeParse(req.body);
@@ -22,7 +21,7 @@ router.post("/signup",async (req,res)=>{
     }
 
     const { name, email, password } = parsed.data;
-    const hashedPassword=await bcrypt.hash(password,10);
+    const hashedPassword=await bcrypt.hash(password, 10);
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -33,7 +32,7 @@ router.post("/signup",async (req,res)=>{
 
     try{
         await User.create({
-            name: name,
+            name: name || "abc",
             email:email,
             password: hashedPassword
         })

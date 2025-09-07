@@ -9,9 +9,7 @@ import { success } from "zod";
 import http from "http";
 import { Server } from "socket.io";
 
-
-
-
+dotenv.config();
 
 // routing
 import signupRoute from "./signup.js";
@@ -23,6 +21,7 @@ import weatherAlertRouter from "./weatherAlertRoute.js";
 import bookRouter from "./booking.js"
 import paymentRouter from "./payment.js"
 import paymentVerificationRouter from "./paymentverify.js"
+// import chatbox from "./chatbox.js"
 
 
 
@@ -51,8 +50,9 @@ app.use("/api/v1", tripRoute);
 app.use("/api", geocodeRouter);
 app.use("/api", weatherAlertRouter);
 app.use("/api", bookRouter)
-app.use("/api",paymentRouter)
+app.use("/api/payment",paymentRouter)
 app.use("/api/payment",paymentVerificationRouter)
+
 
 
 
@@ -68,7 +68,7 @@ app.set("io", io);
 tripSocket(io);
 
 
-const PORT =  3000;
+const PORT =  5000;
 async function main() {
   try {
     // mongoose.set("strictQuery", true);
